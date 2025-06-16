@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["resources/js/*"]
+        }
+    },
+    "exclude": [
+        "node_modules",
+        "public",
+    ]
+}
+//  "resources/js/Components/ApplicationLogo.jsx",
+//         "resources/js/Components/SecondaryButton.jsx",
+//         "resources/js/Components/TextInput.jsx",
+//         "resources/js/Layouts/AppLayout.jsx"
