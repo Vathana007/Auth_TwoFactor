@@ -46,3 +46,18 @@ php artisan make:model YourModelName -mcr
 composer require laravel/jetstream
 php artisan jetstream:install inertia
 composer require spatie/laravel-permission
+
+# dependencies
+npm install inertiajs/react
+npm install axios
+npm install react-dom
+
+# tailwind
+npm install tailwindcss @tailwindcss/vite
+# to vite.config
+import tailwindcss from '@tailwindcss/vite'
+# put in plugin
+tailwindcss(),
+
+# in css
+@import "tailwindcss";
