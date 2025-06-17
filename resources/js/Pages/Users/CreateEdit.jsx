@@ -1,116 +1,151 @@
-import Breadcrumb from '@/Components/Breadcrumb';
+import { Head } from '@inertiajs/react';
+import { useForm, Link, usePage } from '@inertiajs/react';
 import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import NavLink from '@/Components/NavLink';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
 import AdminLayout from '@/Layouts/AdminLayout';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Transition } from '@headlessui/react';
-import { Head, Link, useForm } from '@inertiajs/react';
+import Breadcrumb from '@/Components/Breadcrumb';
 
-export default function UsersCreateEdit({ user, roles }) {
-    const { data, setData, post, patch, errors, reset, processing, recentlySuccessful } =
-        useForm({
-            name: user.name,
-            roles: user.roles?.map(role => role.id) || [],
-        });
-    
+export default function UsersCreateEdit({ user = {}, roles = [] }) {
+    const isEdit = !!user.id;
+    const { data, setData, post, patch, errors, processing } = useForm({
+        name: user.name || '',
+        email: user.email || '',
+        password: '',
+        roles: user.roles ? user.roles.map(role => role.name) : [],
+    });
+
     const handleSelectRole = (e) => {
-        const selectedOptions = Array.from(e.target.selectedOptions).map(option => parseInt(option.value));
-        setData(prev => ({ ...prev, roles: selectedOptions }));
+        const selected = Array.from(e.target.selectedOptions).map(option => option.value);
+        setData('roles', selected);
     };
+
     const submit = (e) => {
         e.preventDefault();
-        if (!user.id) {
-            post(route('users.store'), { preserveState: true }, {
-                onFinish: () => {
-                    reset();
-                },
-            });
+        if (isEdit) {
+            patch(route('users.update', user.id));
         } else {
-            patch(route('users.update', user.id), {
-                onFinish: () => {
-                    reset();
-                },
-            });
+            post(route('users.store'));
         }
     };
-
-    const headWeb = 'User Create'
+    const headWeb = 'User List'
     const linksBreadcrumb = [{ title: 'Home', url: '/' }, { title: headWeb, url: '' }];
+
     return (
-        <AdminLayout breadcrumb={<Breadcrumb header={headWeb} links={linksBreadcrumb} />} >
-            <Head title={headWeb} />
-            <section className="content">
-                <div className="row">
-                    <div className="col-md-12">
-                        <div className="card card-outline card-info">
-                            <div className="card-header">
-                                <h3 className="card-title">Register Data Management</h3>
-                            </div>
-                            <form onSubmit={submit}>
-                                <div className="card-body">
-                                    {/* Name Field */}
-                                    <div className="form-group">
-                                        <label className="text-uppercase" htmlFor="name">
-                                            <span className="text-danger">*</span> Name
+        <>
+            <AdminLayout breadcrumb={<Breadcrumb header={headWeb} links={linksBreadcrumb} />} >
+                <Head title={headWeb} />
+                <div className="container mt-4">
+                    <div className="card">
+                        <div className="card-header">
+                            <h3>{isEdit ? 'Edit User' : 'Create User'}</h3>
+                        </div>
+                        <form onSubmit={submit}>
+                            <div className="card-body">
+                                {/* Name */}
+                                <div className="form-group mb-3">
+                                    <label htmlFor="name">
+                                        <span className="text-danger">*</span> Name
+                                    </label>
+                                    <input
+                                        id="name"
+                                        type="text"
+                                        className={`form-control ${errors.name ? 'is-invalid' : ''}`}
+                                        value={data.name}
+                                        onChange={e => setData('name', e.target.value)}
+                                        required />
+                                    <InputError className="mt-2" message={errors.name} />
+                                </div>
+
+                                <div className="form-group mb-3">
+                                    <label htmlFor="email">
+                                        <span className="text-danger">*</span> Email
+                                    </label>
+                                    <input
+                                        id="email"
+                                        type="email"
+                                        className={`form-control ${errors.email ? 'is-invalid' : ''}`}
+                                        value={data.email}
+                                        onChange={e => setData('email', e.target.value)}
+                                        required
+                                    />
+                                    <InputError className="mt-2" message={errors.email} />
+                                </div>
+
+                                {/* Password (only for create or if editing and want to change) */}
+                                {!isEdit && (
+                                    <div className="form-group mb-3">
+                                        <label htmlFor="password">
+                                            <span className="text-danger">*</span> Password
                                         </label>
                                         <input
-                                            value={data.name}
-                                            onChange={(e) => setData('name', e.target.value)}
-                                            type="text"
-                                            name="name"
-                                            className={`form-control ${errors.name ? 'is-invalid' : ''}`}
-                                            id="name"
-                                        />
-                                        <InputError className="mt-2" message={errors.name} />
+                                            id="password"
+                                            type="password"
+                                            className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+                                            value={data.password}
+                                            onChange={e => setData('password', e.target.value)}
+                                            required />
+                                        <InputError className="mt-2" message={errors.password} />
                                     </div>
-
-                                    {/* Role Selection */}
-                                    <div className="form-group">
-                                        <label className="text-uppercase" htmlFor="roles">
-                                            <span className="text-danger">*</span> Roles
+                                )}
+                                {isEdit && (
+                                    <div className="form-group mb-3">
+                                        <label htmlFor="password">
+                                            Password <small>(leave blank to keep current)</small>
                                         </label>
-                                        <select
-                                            name="roles"
-                                            value={data.roles[0] || ''} // ✅ set the first (or only) role ID
-                                            onChange={(e) => setData('roles', [parseInt(e.target.value)])}
-                                            className="w-full p-2 border border-gray-300 rounded"
-                                        >
-                                            {roles.map((role) => (
-                                                <option key={role.id} value={role.id}>
-                                                    {role.name}
-                                                </option>
-                                            ))}
-                                        </select>
-
-
-                                        <InputError className="mt-2" message={errors.roles} />
+                                        <input
+                                            id="password"
+                                            type="password"
+                                            className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+                                            value={data.password}
+                                            onChange={e => setData('password', e.target.value)} />
+                                        <InputError className="mt-2" message={errors.password} />
                                     </div>
-                                </div>
+                                )}
 
-                                <div className="card-footer clearfix">
-                                    <button
-                                        disabled={processing}
-                                        type="submit"
-                                        className="btn btn-primary"
+                                {/* Roles */}
+                                <div className="form-group mb-3">
+                                    <label htmlFor="roles">
+                                        <span className="text-danger">*</span> Roles
+                                    </label>
+                                    <select
+                                        id="roles"
+                                        name="roles"
+                                        className={`form-control ${errors.roles ? 'is-invalid' : ''}`}
+                                        multiple
+                                        value={data.roles}
+                                        onChange={handleSelectRole}
+                                        required
                                     >
-                                        {processing
-                                            ? user?.id
-                                                ? 'Updating...'
-                                                : 'Saving...'
-                                            : user?.id
-                                                ? 'Update'
-                                                : 'Save'}
-                                    </button>
+                                        {roles.map(role => (
+                                            <option key={role.id} value={role.name}>
+                                                {role.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <InputError className="mt-2" message={errors.roles} />
                                 </div>
-                            </form>
-                        </div>
+                            </div>
+                            <div className="card-footer">
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary"
+                                    disabled={processing}
+                                >
+                                    {processing
+                                        ? isEdit
+                                            ? 'Updating...'
+                                            : 'Saving...'
+                                        : isEdit
+                                            ? 'Update'
+                                            : 'Save'}
+                                </button>
+                                <Link href={route('users.index')} className="btn btn-secondary ms-2">
+                                    Cancel
+                                </Link>
+                            </div>
+                        </form>
                     </div>
                 </div>
-            </section>
-
-        </AdminLayout>
+            </AdminLayout>
+        </>
     );
 }

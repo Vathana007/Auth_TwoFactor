@@ -45,3 +45,4 @@ php artisan make:model YourModelName -mcr
 # jetstream
 composer require laravel/jetstream
 php artisan jetstream:install inertia
+composer require spatie/laravel-permission

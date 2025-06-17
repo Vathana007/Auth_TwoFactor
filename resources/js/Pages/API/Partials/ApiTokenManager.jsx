@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useForm, usePage } from '@inertiajs/inertia-react';
+import { useForm, usePage } from '@inertiajs/react';
 import ActionMessage from '@/Components/ActionMessage';
 import ActionSection from '@/Components/ActionSection';
 import Checkbox from '@/Components/Checkbox';

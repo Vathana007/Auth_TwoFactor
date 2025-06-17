@@ -19,5 +19,8 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        $user = \App\Models\User::find(1);
+        $user->givePermissionTo(['role-list', 'role-create', 'category-list', 'category-create']);
     }
 }

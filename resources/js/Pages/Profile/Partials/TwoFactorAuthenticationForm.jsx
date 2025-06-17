@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
-import { useForm, usePage } from '@inertiajs/inertia-react';
+import { useForm, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import ActionSection from '@/Components/ActionSection';
 import ConfirmsPassword from '@/Components/ConfirmsPassword';
@@ -33,7 +33,6 @@ export default function TwoFactorAuthenticationForm({ requiresConfirmation }) {
             confirmationForm.reset();
             confirmationForm.clearErrors && confirmationForm.clearErrors();
         }
-        // eslint-disable-next-line
     }, [twoFactorEnabled]);
 
     const enableTwoFactorAuthentication = () => {
@@ -101,7 +100,6 @@ export default function TwoFactorAuthenticationForm({ requiresConfirmation }) {
             title="Two Factor Authentication"
             description="Add additional security to your account using two factor authentication."
         >
-            {/* Content */}
             <div>
                 {twoFactorEnabled && !confirming && (
                     <h3 className="text-lg font-medium text-gray-900">

@@ -11,7 +11,7 @@
         "laravel/jetstream": "^5.3",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
-        "spatie/laravel-permission": "^6.17",
+        "spatie/laravel-permission": "^6.20",
         "tightenco/ziggy": "^2.0",
         "tymon/jwt-auth": "^2.2"
     },

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Head } from '@inertiajs/inertia-react';
+import { Head } from '@inertiajs/react';
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo';
 
 export default function PrivacyPolicy({ policy }) {

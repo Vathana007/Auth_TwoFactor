@@ -8,11 +8,14 @@ import SecondaryButton from '@/Components/SecondaryButton';
 import SecondaryButtonLink from '@/Components/SecondaryButtonLink';
 import AdminLayout from '@/Layouts/AdminLayout';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import moment from 'moment';
 import { useState } from 'react';
 
 export default function CategoriesPage({ categoryData }) {
+    const { auth } = usePage().props;
+    const can = auth?.can ?? {};
+
     const datasList = categoryData.data;
     const [confirmingDataDeletion, setConfirmingDataDeletion] = useState(false);
     const [dataEdit, setDataEdit] = useState({})
@@ -40,7 +43,6 @@ export default function CategoriesPage({ categoryData }) {
         destroy(route('categories.destroy', dataEdit.id), {
             preserveScroll: true,
             onSuccess: () => closeModal(),
-            onError: () => passwordInput.current.focus(),
             onFinish: () => reset(),
         });
     };
@@ -89,12 +91,16 @@ export default function CategoriesPage({ categoryData }) {
                                                     <td>{item?.view_order}</td>
                                                     <td>{moment(item?.created_at).format("DD/MM/YYYY")}</td>
                                                     <td width={'170px'}>
-                                                        <Link href={route('categories.edit', item.id)} class="btn btn-info btn-xs mr-2">
-                                                            <i className='fas fa-edit'></i> Edit
-                                                        </Link>
-                                                        <button onClick={() => confirmDataDeletion(item)} type="button" class="btn btn-danger btn-xs">
-                                                            <i className='fas fa-trash'></i> Delete
-                                                        </button>
+                                                        {can['category-edit'] && (
+                                                            <Link href={route('categories.edit', item.id)} className="btn btn-info btn-xs mr-2">
+                                                                <i className='fas fa-edit'></i> Edit
+                                                            </Link>
+                                                        )}
+                                                        {can['category-delete'] && (
+                                                            <button onClick={() => confirmDataDeletion(item)} type="button" className="btn btn-danger btn-xs">
+                                                                <i className='fas fa-trash'></i> Delete
+                                                            </button>
+                                                        )}
                                                     </td>
                                                 </tr>
                                             ))

@@ -6,8 +6,6 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 use App\Models\User;
 
 class UserController extends Controller
@@ -24,25 +22,20 @@ class UserController extends Controller
     {
         $roles = Role::all();
         return Inertia::render('Users/CreateEdit', [
-            'roles' => $roles
+            'roles' => $roles,
+            'user' => (object)[], // Empty object for create
         ]);
     }
 
     public function store(Request $request)
     {
-        $validated = Validator::make($request->all(), [
+        $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => [
-                'required',
-                'string',
-                'email',
-                'max:255',
-                Rule::unique('users', 'email'), // use table name and column explicitly
-            ],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8'],
-            'roles' => ['nullable'],
-            'roles.*' => ['string', 'exists:roles,name'], // validate each role exists if provided
-        ])->validate();
+            'roles' => ['required', 'array', 'min:1'],
+            'roles.*' => ['string', 'exists:roles,name'],
+        ]);
 
         $user = User::create([
             'name' => $validated['name'],
@@ -50,36 +43,49 @@ class UserController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        if (!empty($validated['roles'])) {
-            $user->assignRole($validated['roles']);
-        }
-        return to_route('users.index')->with("success", "User created successfully");
+        $user->assignRole($validated['roles']);
+
+        return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
     public function edit($id)
     {
-        $user = User::with(['roles'])->find($id);
+        $user = User::with('roles')->findOrFail($id);
         $roles = Role::all();
-
         return Inertia::render('Users/CreateEdit', [
+            'user' => $user,
             'roles' => $roles,
-            'user' => $user
         ]);
     }
 
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'password' => ['nullable', 'string', 'min:8'],
+            'roles' => ['required', 'array', 'min:1'],
+            'roles.*' => ['string', 'exists:roles,name'],
+        ]);
+
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        if (!empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
+        }
         $user->save();
-        $user->syncRoles($request->roles);
-        return to_route('users.index')->with("success", "User updated successfully");
+
+        $user->syncRoles($validated['roles']);
+
+        return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 
     public function destroy($id)
     {
         $user = User::findOrFail($id);
         $user->delete();
-
-        return to_route('users.index')->with("success", "User Deleted successfully");
+        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
 }

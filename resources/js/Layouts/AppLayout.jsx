@@ -47,6 +47,7 @@ export default function AppLayout({ title, children, header }) {
                                         Dashboard
                                     </NavLink>
                                 </div>
+
                             </div>
 
                             <div className="hidden sm:flex sm:items-center sm:ms-6">

@@ -6,7 +6,9 @@ import { useEffect } from 'react';
 
 export default function MenuSideBar({ }) {
     const { url, auth } = usePage().props;
-    const can = auth?.can ?? {};
+    const can = auth?.can ?? {};  // Ensure 'can' is available in props
+    console.log('Sidebar permissions:', can);
+
     useEffect(() => {
         // Ensure dropdowns, tooltips, and modals work
         $('[data-toggle="dropdown"]').dropdown();
@@ -55,102 +57,93 @@ export default function MenuSideBar({ }) {
                                     <p>Dashboard</p>
                                 </Link>
                             </li>
-                            {/* <li className="nav-item">
-                                <Link href="#" className="nav-link">
-                                    <i className="nav-icon fas fa-th"></i>
-                                    <p>
-                                        Widgets
-                                        <span className="right badge badge-danger">New</span>
-                                    </p>
-                                </Link>
-                            </li> */}
-                            {can['category-list'] && (
-                                <li className="nav-header">SETTING</li>
-                            )}
+
+
+                            {/* Check for Permissions and Display Categories */}
                             {can['category-list'] && (
                                 <>
-                                
-                                <li className={`nav-item ${(route().current('categories.index') || route().current('categories.create')) && 'menu-is-opening menu-open'}`}>
-                                    <a href="#" className={`nav-link ${(route().current('categories.index') || route().current('categories.create')) && 'active'}`}>
-                                        <i className="nav-icon far fa-plus-square"></i>
-                                        <p> CATEGORY
-                                            <i className="fas fa-angle-left right"></i>
-                                        </p>
-                                    </a>
-                                    <ul className="nav nav-treeview">
-                                        <li className="nav-item">
-                                            <Link href={route('categories.index')} className={`nav-link ${route().current('categories.index') && 'active'}`}>
-                                                <i className="fa-solid fa-list-ul nav-icon text-warning"></i>
-                                                <p>LIST</p>
-                                            </Link>
-                                        </li>
-                                        <li className="nav-item">
-                                            <Link href={route('categories.create')} className={`nav-link ${route().current('categories.create') && 'active'}`}>
-                                                <i className="fa-regular fa-square-plus nav-icon text-info"></i>
-                                                <p>CREATE</p>
-                                            </Link>
-                                        </li>
-                                    </ul>
-                                </li>
+                                    <li className="nav-header">SETTING</li>
+                                    <li className={`nav-item ${(route().current('categories.index') || route().current('categories.create')) && 'menu-is-opening menu-open'}`}>
+                                        <a href="#" className={`nav-link ${(route().current('categories.index') || route().current('categories.create')) && 'active'}`}>
+                                            <i className="nav-icon far fa-plus-square"></i>
+                                            <p> CATEGORY
+                                                <i className="fas fa-angle-left right"></i>
+                                            </p>
+                                        </a>
+                                        <ul className="nav nav-treeview">
+                                            <li className="nav-item">
+                                                <Link href={route('categories.index')} className={`nav-link ${route().current('categories.index') && 'active'}`}>
+                                                    <i className="fa-solid fa-list-ul nav-icon text-warning"></i>
+                                                    <p>LIST</p>
+                                                </Link>
+                                            </li>
+                                            <li className="nav-item">
+                                                <Link href={route('categories.create')} className={`nav-link ${route().current('categories.create') && 'active'}`}>
+                                                    <i className="fa-regular fa-square-plus nav-icon text-info"></i>
+                                                    <p>CREATE</p>
+                                                </Link>
+                                            </li>
+                                        </ul>
+                                    </li>
                                 </>
                             )}
-                            {can['role-list' || 'user-list'] && (
-                                <li className="nav-header">AUTHENTICATION</li>
-                            )}
+
                             {can['role-list'] && (
                                 <>
-                                <li className={`nav-item ${(route().current('roles.index') || route().current('roles.create')) && 'menu-is-opening menu-open'}`}>
-                                    <a href="#" className={`nav-link ${(route().current('roles.index') || route().current('roles.create')) && 'active'}`}>
-                                        <i className="nav-icon far fa-plus-square"></i>
-                                        <p> ROLE
-                                            <i className="fas fa-angle-left right"></i>
-                                        </p>
-                                    </a>
-                                    <ul className="nav nav-treeview">
-                                        <li className="nav-item">
-                                            <Link href={route('roles.index')} className={`nav-link ${route().current('roles.index') && 'active'}`}>
-                                                <i className="fa-solid fa-list-ul nav-icon text-warning"></i>
-                                                <p>LIST</p>
-                                            </Link>
-                                        </li>
-                                        {can['role-create'] && (
+                                    <li className="nav-header">AUTHENTICATION</li>
+                                    <li className={`nav-item ${(route().current('roles.index') || route().current('roles.create')) && 'menu-is-opening menu-open'}`}>
+                                        <a href="#" className={`nav-link ${(route().current('roles.index') || route().current('roles.create')) && 'active'}`}>
+                                            <i className="nav-icon far fa-plus-square"></i>
+                                            <p> ROLE
+                                                <i className="fas fa-angle-left right"></i>
+                                            </p>
+                                        </a>
+                                        <ul className="nav nav-treeview">
                                             <li className="nav-item">
-                                                <Link href={route('roles.create')} className={`nav-link ${route().current('roles.create') && 'active'}`}>
-                                                    <i className="fa-regular fa-square-plus nav-icon text-info"></i>
-                                                    <p>CREATE</p>
+                                                <Link href={route('roles.index')} className={`nav-link ${route().current('roles.index') && 'active'}`}>
+                                                    <i className="fa-solid fa-list-ul nav-icon text-warning"></i>
+                                                    <p>LIST</p>
                                                 </Link>
                                             </li>
-                                        )}
-                                    </ul>
-                                </li>
+                                            {can['role-create'] && (
+                                                <li className="nav-item">
+                                                    <Link href={route('roles.create')} className={`nav-link ${route().current('roles.create') && 'active'}`}>
+                                                        <i className="fa-regular fa-square-plus nav-icon text-info"></i>
+                                                        <p>CREATE</p>
+                                                    </Link>
+                                                </li>
+                                            )}
+                                        </ul>
+                                    </li>
                                 </>
                             )}
+
                             {can['user-list'] && (
                                 <>
-                                <li className={`nav-item ${(route().current('users.index') || route().current('users.create')) && 'menu-is-opening menu-open'}`}>
-                                    <a href="#" className={`nav-link ${(route().current('users.index') || route().current('users.create')) && 'active'}`}>
-                                        <i className="nav-icon far fa-plus-square"></i>
-                                        <p> USER
-                                            <i className="fas fa-angle-left right"></i>
-                                        </p>
-                                    </a>
-                                    <ul className="nav nav-treeview">
-                                        <li className="nav-item">
-                                            <Link href={route('users.index')} className={`nav-link ${route().current('users.index') && 'active'}`}>
-                                                <i className="fa-solid fa-list-ul nav-icon text-warning"></i>
-                                                <p>LIST</p>
-                                            </Link>
-                                        </li>
-                                        {can['user-create'] && (
+                                    <li className={`nav-item ${(route().current('users.index') || route().current('users.create')) && 'menu-is-opening menu-open'}`}>
+                                        <a href="#" className={`nav-link ${(route().current('users.index') || route().current('users.create')) && 'active'}`}>
+                                            <i className="nav-icon far fa-plus-square"></i>
+                                            <p> USER
+                                                <i className="fas fa-angle-left right"></i>
+                                            </p>
+                                        </a>
+                                        <ul className="nav nav-treeview">
                                             <li className="nav-item">
-                                                <Link href={route('users.create')} className={`nav-link ${route().current('users.create') && 'active'}`}>
-                                                    <i className="fa-regular fa-square-plus nav-icon text-info"></i>
-                                                    <p>CREATE</p>
+                                                <Link href={route('users.index')} className={`nav-link ${route().current('users.index') && 'active'}`}>
+                                                    <i className="fa-solid fa-list-ul nav-icon text-warning"></i>
+                                                    <p>LIST</p>
                                                 </Link>
                                             </li>
-                                        )}
-                                    </ul>
-                                </li>
+                                            {can['user-create'] && (
+                                                <li className="nav-item">
+                                                    <Link href={route('users.create')} className={`nav-link ${route().current('users.create') && 'active'}`}>
+                                                        <i className="fa-regular fa-square-plus nav-icon text-info"></i>
+                                                        <p>CREATE</p>
+                                                    </Link>
+                                                </li>
+                                            )}
+                                        </ul>
+                                    </li>
                                 </>
                             )}
                         </ul>

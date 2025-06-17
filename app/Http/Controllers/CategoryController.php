@@ -9,84 +9,60 @@ use Inertia\Response;
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request): Response
     {
-        $rsDatas = Category::latest()->paginate(10)->appends(request()->query());
-
+        $categories = Category::orderBy('view_order')->paginate(10);
         return Inertia::render('Categories/Index', [
-            'categoryData' => $rsDatas
+            'categoryData' => $categories,
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return Inertia::render('Categories/CreateEdit', [
-            'datas' => ''
+            'datas' => (object)[],
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request, Category $model)
+    public function store(Request $request)
     {
-        $model->create($request->validate([
-            'name' => 'required|max:255|min:2',
-            'view_order' => 'required',
-        ]));
-        return redirect()->route('categories.index');
-        // return back()->with('message', 'Data added successfully');
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'view_order' => ['required', 'integer'],
+        ]);
+
+        Category::create($validated);
+
+        return redirect()->route('categories.index')->with('success', 'Category created successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Category $category, $id)
+    public function edit($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Category $category, $id)
-    {
-        $rsDatasModel = Category::find($id);
+        $category = Category::findOrFail($id);
         return Inertia::render('Categories/CreateEdit', [
-            'datas' => $rsDatasModel
+            'datas' => $category,
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Category $model, $id)
+    public function update(Request $request, $id)
     {
-        $request->validate([
-            'name' => 'required|max:255|min:2',
-            'view_order' => 'required',
-        ]);
-        
-        $rsDatasModel = Category::find($id);
-        $rsDatasModel->update($request->all());
+        $category = Category::findOrFail($id);
 
-        return redirect()->route('categories.index');
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'view_order' => ['required', 'integer'],
+        ]);
+
+        $category->update($validated);
+
+        return redirect()->route('categories.index')->with('success', 'Category updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Category $category, $id)
+    public function destroy($id)
     {
-        $rsDatasModel = Category::find($id);
-        $rsDatasModel->delete();
+        $category = Category::findOrFail($id);
+        $category->delete();
 
-        return back()->with('message', 'Deleted successfully');
+        return redirect()->route('categories.index')->with('success', 'Category deleted successfully.');
     }
 }

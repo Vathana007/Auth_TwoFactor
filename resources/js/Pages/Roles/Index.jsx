@@ -14,9 +14,9 @@ import { useState } from 'react';
 
 export default function UserPage({ roles }) {
     const { auth } = usePage().props;
-    const can = auth?.can ?? {}; 
+    const can = auth?.can ?? {};
     const datasList = roles.data;
-    
+
     const [confirmingDataDeletion, setConfirmingDataDeletion] = useState(false);
     const [dataEdit, setDataEdit] = useState({})
     const { data: deleteData, setData: setDeleteData, delete: destroy, processing, reset, errors, clearErrors } =
@@ -80,9 +80,7 @@ export default function UserPage({ roles }) {
                                             <th>Name</th>
                                             <th>Guard</th>
                                             <th>Created At</th>
-                                            {can['role-edit' || 'role-delete'] && (
-                                                <th>Action</th>
-                                            )}
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -93,17 +91,13 @@ export default function UserPage({ roles }) {
                                                     <td>{item?.name}</td>
                                                     <td>{item?.guard_name}</td>
                                                     <td>{moment(item?.created_at).format("DD/MM/YYYY")}</td>
-                                                    <td width={'170px'}>
-                                                        {can['role-edit'] && (
-                                                            <Link href={route('roles.edit', item.id)} className="btn btn-info btn-xs mr-2">
-                                                                <i className='fas fa-edit'></i> Edit
-                                                            </Link>
-                                                        )}
-                                                        {can['role-delete'] && (
-                                                        <button onClick={() => confirmDataDeletion(item)} type="button" className="btn btn-danger btn-xs">
-                                                            <i className='fas fa-trash'></i> Delete
+                                                    <td>
+                                                        <Link href={route('roles.edit', item.id)} className="btn btn-info btn-xs mr-2">
+                                                            <i className="fas fa-edit"></i> Edit
+                                                        </Link>
+                                                        <button onClick={() => confirmRoleDeletion(item)} className="btn btn-danger btn-xs">
+                                                            <i className="fas fa-trash"></i> Delete
                                                         </button>
-                                                        )}
                                                     </td>
                                                 </tr>
                                             ))
