@@ -8,6 +8,7 @@ use App\Http\Controllers\RolesController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 
+
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
@@ -64,3 +65,4 @@ Route::prefix('categories')->group(function () {
     Route::patch("/{id}", [CategoryController::class, 'update'])->name('categories.update');
     Route::delete("/{id}", [CategoryController::class, 'destroy'])->name('categories.destroy')->middleware(['check:category-delete']);
 });
+

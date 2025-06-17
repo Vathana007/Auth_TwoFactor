@@ -25,17 +25,21 @@ class ConfirmablePasswordController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Validate the password entered by the user
         if (! Auth::guard('web')->validate([
             'email' => $request->user()->email,
             'password' => $request->password,
         ])) {
+            // If validation fails, throw an exception and pass it back to the frontend
             throw ValidationException::withMessages([
                 'password' => __('auth.password'),
             ]);
         }
 
+        // Store that the user has confirmed their password
         $request->session()->put('auth.password_confirmed_at', time());
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Use Inertia redirection to the intended page
+        return redirect()->intended(route('dashboard'));
     }
 }

@@ -1,104 +1,98 @@
 import React, { useRef, useState } from 'react';
-import DialogModal from './DialogModal';
-import InputError from './InputError';
-import PrimaryButton from './PrimaryButton';
-import SecondaryButton from './SecondaryButton';
-import TextInput from './TextInput';
 import axios from 'axios';
+import DialogModal from './DialogModal';
+import TextInput from './TextInput';
+import InputError from './InputError';
+import SecondaryButton from './SecondaryButton';
+import PrimaryButton from './PrimaryButton';
 
 export default function ConfirmsPassword({
-    title = 'Confirm Password',
-    content = 'For your security, please confirm your password to continue.',
-    button = 'Confirm',
-    onConfirmed,
-    children,
+  title = 'Confirm Password',
+  content = 'For your security, please confirm your password to continue.',
+  button = 'Confirm',
+  onConfirmed,
+  children,
 }) {
-    const [confirmingPassword, setConfirmingPassword] = useState(false);
-    const [form, setForm] = useState({
-        password: '',
-        error: '',
-        processing: false,
-    });
-    const passwordInput = useRef(null);
+  const [showing, setShowing] = useState(false);
+  const [form, setForm] = useState({ password: '', error: '', processing: false });
+  const passwordInput = useRef(null);
 
-    const startConfirmingPassword = () => {
-        axios.get(route('password.confirmation')).then(response => {
-            if (response.data.confirmed) {
-                onConfirmed && onConfirmed();
-            } else {
-                setConfirmingPassword(true);
-                setTimeout(() => passwordInput.current && passwordInput.current.focus(), 250);
-            }
-        });
-    };
+  const start = () => {
+    axios.get(route('password.confirmation'))
+      .then(res => {
+        if (res.data.confirmed) {
+          onConfirmed?.();
+        } else {
+          setShowing(true);
+          setTimeout(() => passwordInput.current?.focus(), 250);
+        }
+      });
+  };
 
-    const confirmPassword = () => {
-        setForm(f => ({ ...f, processing: true }));
-        axios.post(route('password.confirm'), {
-            password: form.password,
-        }).then(() => {
-            setForm(f => ({ ...f, processing: false }));
-            closeModal();
-            setTimeout(() => onConfirmed && onConfirmed(), 0);
-        }).catch(error => {
-            setForm(f => ({
-                ...f,
-                processing: false,
-                error: error.response?.data?.errors?.password?.[0] || 'Password confirmation failed.',
-            }));
-            passwordInput.current && passwordInput.current.focus();
-        });
-    };
-
-    const closeModal = () => {
-        setConfirmingPassword(false);
+  const confirm = () => {
+    setForm(f => ({ ...f, processing: true }));
+    axios.post(route('password.confirm'), { password: form.password })
+      .then(() => {
         setForm({ password: '', error: '', processing: false });
-    };
+        setShowing(false);
+        onConfirmed?.();
+      })
+      .catch(err => {
+        setForm(f => ({
+          ...f,
+          processing: false,
+          error: err.response?.data?.errors?.password?.[0] || 'Password confirmation failed.',
+        }));
+        passwordInput.current?.focus();
+      });
+  };
 
-    return (
-        <span>
-            <span onClick={startConfirmingPassword} style={{ cursor: 'pointer' }}>
-                {children}
-            </span>
+  const close = () => {
+    setShowing(false);
+    setForm({ password: '', error: '', processing: false });
+  };
 
-            <DialogModal show={confirmingPassword} onClose={closeModal}>
-                {{
-                    title: <>{title}</>,
-                    content: (
-                        <>
-                            {content}
-                            <div className="mt-4">
-                                <TextInput
-                                    ref={passwordInput}
-                                    type="password"
-                                    className="mt-1 block w-3/4"
-                                    placeholder="Password"
-                                    autoComplete="current-password"
-                                    value={form.password}
-                                    onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
-                                    onKeyUp={e => e.key === 'Enter' && confirmPassword()}
-                                />
-                                <InputError message={form.error} className="mt-2" />
-                            </div>
-                        </>
-                    ),
-                    footer: (
-                        <>
-                            <SecondaryButton onClick={closeModal}>
-                                Cancel
-                            </SecondaryButton>
-                            <PrimaryButton
-                                className="ms-3"
-                                style={{ opacity: form.processing ? 0.25 : 1 }}
-                                disabled={form.processing}
-                                onClick={confirmPassword}
-                            >
-                                {button}
-                            </PrimaryButton>
-                        </>
-                    ),
-                }}
-            </DialogModal>
-        </span>
-    );
+  return (
+    <>
+      <span onClick={start} style={{ cursor: 'pointer' }}>
+        {children}
+      </span>
+
+      <DialogModal show={showing} onClose={close}>
+        {{
+          title: <>{title}</>,
+          content: (
+            <>
+              <p>{content}</p>
+              <div className="mt-4">
+                <TextInput
+                  ref={passwordInput}
+                  type="password"
+                  className="mt-1 block w-3/4"
+                  placeholder="Password"
+                  autoComplete="current-password"
+                  value={form.password}
+                  onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
+                  onKeyUp={e => e.key === 'Enter' && confirm()}
+                />
+                <InputError message={form.error} className="mt-2" />
+              </div>
+            </>
+          ),
+          footer: (
+            <>
+              <SecondaryButton onClick={close}>Cancel</SecondaryButton>
+              <PrimaryButton
+                className="ms-3"
+                disabled={form.processing}
+                onClick={confirm}
+              >
+                {form.processing ? 'Confirming…' : button}
+              </PrimaryButton>
+            </>
+          ),
+        }}
+      </DialogModal>
+    </>
+  );
 }
